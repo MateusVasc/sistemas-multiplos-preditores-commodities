@@ -13,6 +13,5 @@ def save_to_parquet(df, path_parquet):
     if not os.path.exists(dir_final):
         os.makedirs(dir_final)
 
-    # Salva o DataFrame no formato Parquet
     df.to_parquet(path_parquet, engine="pyarrow")
     print(f'Arquivo salvo em: {path_parquet}')

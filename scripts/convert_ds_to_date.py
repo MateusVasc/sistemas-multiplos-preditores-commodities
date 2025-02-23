@@ -7,6 +7,6 @@ def convert_ds_to_date(df):
     :param df: DataFrame contendo a coluna 'ds'.
     :return: DataFrame com 'ds' convertido para datetime.
     """
-    df = df.copy()  # Evita modificar o original
+    df = df.copy()
     df['ds'] = pd.to_datetime(df['ds'], format='%d/%m/%Y', errors='coerce')
     return df

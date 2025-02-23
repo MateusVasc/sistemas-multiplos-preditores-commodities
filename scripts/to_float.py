@@ -1,14 +1,14 @@
 import pandas as pd
 
-def convert_x_to_float(df):
+def convert_y_to_float(df):
     """
-    Converte a coluna 'X' para float, lidando com possíveis valores formatados como string com vírgula.
+    Converte a coluna 'y' para float, lidando com possíveis valores formatados como string com vírgula.
     
-    :param df: DataFrame contendo a coluna 'X'.
-    :return: DataFrame com 'X' convertido para float.
+    :param df: DataFrame contendo a coluna 'y'.
+    :return: DataFrame com 'y' convertido para float.
     """
-    df = df.copy()  # Evita modificar o original
-    df['X'] = df['X'].astype(str).str.replace(',', '.', regex=False)  # Substituir vírgulas por pontos
-    df['X'] = df['X'].astype(float)  # Converter para float
+    df = df.copy()
+    df['y'] = df['y'].astype(str).str.replace(',', '.', regex=False)
+    df['y'] = df['y'].astype(float)
     
     return df
