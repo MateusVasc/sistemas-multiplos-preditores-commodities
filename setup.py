@@ -6,5 +6,5 @@ setup(
     description="Sistema Múltiplos Preditores de Commodities",
     author="Matt",
     packages=find_packages(),
-    python_requires=">=3.12",
+    python_requires=">=3.10",
 )
