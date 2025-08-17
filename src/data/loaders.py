@@ -8,6 +8,8 @@ from .preprocessors import (
     FloatConverter, 
     MonthlyAggregator,
     DateFilter,
+    MonthlyFirstAggregator,
+    MonthlyLastAggregator,
     PreprocessingPipeline
 )
 from src.utils.find_root import get_project_root
@@ -125,7 +127,7 @@ class CommodityLoader:
     
     @classmethod
     def load_commodity(cls, commodity_name: str, currency: str = 'BRL', 
-                      preprocessing: bool = True, monthly_aggregation: bool = True,
+                      preprocessing: bool = True, monthly_aggregation: Optional[str] = "mean",
                       limit_date: Optional[str] = None) -> pd.DataFrame:
         """
         Carrega uma commodity específica com preprocessamento automático.
@@ -134,7 +136,11 @@ class CommodityLoader:
             commodity_name: Nome da commodity (ex: 'acucar_santos', 'milho', etc.)
             currency: Moeda desejada ('BRL' ou 'USD')
             preprocessing: Se deve aplicar preprocessamento básico
-            monthly_aggregation: Se deve fazer agregação mensal
+            monthly_aggregation: Tipo de agregação mensal:
+                - "mean"  → média (padrão)
+                - "first" → primeiro dia do mês
+                - "last"  → último dia do mês
+                - None    → sem agregação
             limit_date: Data limite para filtrar dados (formato '%d/%m/%Y')
             
         Returns:
@@ -182,8 +188,15 @@ class CommodityLoader:
             preprocessors.append(date_filter)
         
         if monthly_aggregation:
-            monthly_aggregator = MonthlyAggregator()
-            preprocessors.append(monthly_aggregator)
+            if monthly_aggregation == "mean":
+                aggregator = MonthlyAggregator()
+            elif monthly_aggregation == "first":
+                aggregator = MonthlyFirstAggregator()
+            elif monthly_aggregation == "last":
+                aggregator = MonthlyLastAggregator()
+            else:
+                raise ValueError("monthly_aggregation deve ser 'mean', 'first', 'last' ou None")
+            preprocessors.append(aggregator)
         
         pipeline = PreprocessingPipeline(preprocessors)
         df = pipeline.fit_transform(df)
@@ -193,7 +206,7 @@ class CommodityLoader:
     @classmethod
     def load_all_commodities(cls, currency: str = 'BRL', 
                            preprocessing: bool = True, 
-                           monthly_aggregation: bool = True,
+                           monthly_aggregation: Optional[str] = "mean",
                            limit_date: Optional[str] = None) -> pd.DataFrame:
         """
         Carrega todas as commodities e concatena em um DataFrame único.
@@ -236,7 +249,7 @@ class CommodityLoader:
     def load_multiple_commodities(cls, commodity_names: List[str], 
                                 currency: str = 'BRL',
                                 preprocessing: bool = True,
-                                monthly_aggregation: bool = True,
+                                monthly_aggregation: Optional[str] = "mean",
                                 limit_date: Optional[str] = None) -> pd.DataFrame:
         """
         Carrega múltiplas commodities específicas.

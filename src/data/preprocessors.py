@@ -174,6 +174,38 @@ class MonthlyAggregator(BasePreprocessor):
         df_monthly = df_monthly[['ds', 'y', 'unique_id']]
         
         return df_monthly
+    
+class MonthlyFirstAggregator(BasePreprocessor):
+    """Agrega dados pegando o primeiro valor de cada mês."""
+    
+    def transform(self, df: pd.DataFrame) -> Any:
+        df = df.copy()
+        df['ds'] = pd.to_datetime(df['ds'])
+        df['year_month'] = df['ds'].dt.to_period('M')
+
+        # Pega o primeiro registro de cada grupo
+        df_first = df.sort_values('ds').groupby(['year_month', 'unique_id']).first().reset_index()
+        df_first['ds'] = pd.to_datetime(df_first['year_month'].astype(str) + '-01')
+        df_first = df_first[['ds', 'y', 'unique_id']]
+
+        return df_first
+
+
+class MonthlyLastAggregator(BasePreprocessor):
+    """Agrega dados pegando o último valor de cada mês."""
+    
+    def transform(self, df: pd.DataFrame) -> Any:
+        df = df.copy()
+        df['ds'] = pd.to_datetime(df['ds'])
+        df['year_month'] = df['ds'].dt.to_period('M')
+
+        # Pega o último registro de cada grupo
+        df_last = df.sort_values('ds').groupby(['year_month', 'unique_id']).last().reset_index()
+        # A data real do último registro
+        df_last['ds'] = df_last['ds']
+        df_last = df_last[['ds', 'y', 'unique_id']]
+
+        return df_last
 
 
 class DateFilter(BasePreprocessor):
