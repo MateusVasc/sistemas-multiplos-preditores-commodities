@@ -16,6 +16,7 @@ def split_series(df):
         train = group.iloc[:val_start].copy()
         val = group.iloc[val_start:train_end].copy()
         test = group.iloc[test_start:].copy()
+        print(f"Treino + Val {uid}: {len(train) + len(val)} | Teste {uid}: {len(test)}")
         
         train_list.append(train)
         val_list.append(val)
