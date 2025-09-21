@@ -2,10 +2,10 @@ from src.models.ensemble.dynamic_selection.base_dynamic_selection import Dynamic
 
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances, cosine_similarity
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 class DCSLARegressor(DynamicSelection):
-    def __init__(self, base_models, windows_size=12, top_k=10, similarity="cosine"):
+    def __init__(self, base_models, top_k, windows_size=12, similarity="cosine"):
         """
         Dynamic Classifier Selection by Local Accuracy para séries temporais.
 
@@ -28,7 +28,7 @@ class DCSLARegressor(DynamicSelection):
         for model in self.base_models:
             model.fit(X, y)
             y_pred = model.predict(X)
-            mse = mean_squared_error(y, y_pred)
+            mse = mean_absolute_error(y, y_pred)
             errors.append(mse)
         return np.array(errors)
 
@@ -41,10 +41,10 @@ class DCSLARegressor(DynamicSelection):
         horizon : int
             Quantidade de passos futuros a prever.
         """
-        # Converter para array numpy se necessário
+        # to array numpy se necessário
         if hasattr(y_series, 'values'):  # pandas Series
             y_series = y_series.values
-        elif not isinstance(y_series, np.ndarray):  # lista ou outro tipo
+        elif not isinstance(y_series, np.ndarray):  # outro tipo
             y_series = np.array(y_series)
         
         # Verificar se há dados suficientes
@@ -70,15 +70,20 @@ class DCSLARegressor(DynamicSelection):
             competence_X = windows[top_k_idx]
             competence_y = targets[top_k_idx]
 
-            # escolher melhor modelo
+            # pegar melhor modelo
             errors = self._evaluate_models(competence_X, competence_y)
             best_model = self.base_models[np.argmin(errors)]
+            print(best_model)
 
-            # prever próximo passo
+            # prever próximo passo e atualizar histórico de erros
             y_next = best_model.predict([curr_lags])[0]
+            self.update_history(
+                y_real_future[step],
+                {best_model: y_next}
+            )
             forecast.append(y_next)
 
-            # atualizar histórico
+            # atualizar histórico da série
             curr_lags = np.append(curr_lags[1:], y_real_future[step])
             y_train = np.append(y_train, y_real_future[step])
 
