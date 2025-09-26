@@ -16,10 +16,10 @@ class DynamicSelection(ABC):
             targets.append(series[i])
         return np.array(windows), np.array(targets)
 
-    def fit(self, y_train):
-        """Realiza treinamento para cada modelo base."""
-        for model in self.base_models.values():
-            model.fit(y_train)
+    def fit(self, X, y):
+        """Treina cada modelo base uma vez no conjunto global."""
+        for model in self.base_models:
+            model.fit(X, y)
 
     def update_history(self, y_true, preds_dict):
         """Atualiza erros históricos para cada modelo base."""
@@ -29,5 +29,5 @@ class DynamicSelection(ABC):
 
     @abstractmethod
     def predict(self, y_series, horizon=1):
-        """Cada subclasse deve implementar sua lógica de seleção."""
+        """Cada subclasse deve implementar sua lógica de previsão."""
         pass

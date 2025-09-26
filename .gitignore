@@ -3,6 +3,7 @@ enviroment.yml
 __pycache__/
 *.py[cod]
 *$py.class
+lightning_logs
 
 # C extensions
 *.so
