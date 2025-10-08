@@ -11,7 +11,7 @@ class DynamicSelection(ABC):
     def _extract_lag_windows(self, series):
         """Cria janelas de lags e targets a partir de uma série univariada."""
         windows, targets = [], []
-        for i in range(self.windows_size, len(series)-1):
+        for i in range(self.windows_size, len(series)):
             windows.append(series[i-self.windows_size:i])
             targets.append(series[i])
         return np.array(windows), np.array(targets)
